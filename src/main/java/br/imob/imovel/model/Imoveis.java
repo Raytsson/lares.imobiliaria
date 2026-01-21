@@ -39,6 +39,7 @@ public class Imoveis {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
     private Enderecos endereco;
+    private boolean movelActive = true;
     @OneToMany(mappedBy = "imovel", cascade = CascadeType.ALL)
     private List<FotoImovel> fotos;
 }

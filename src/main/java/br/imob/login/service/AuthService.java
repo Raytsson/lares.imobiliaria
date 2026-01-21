@@ -1,13 +1,11 @@
 package br.imob.login.service;
 
-import br.imob.login.dto.UsuarioRequestDTO;
-import br.imob.login.dto.UsuarioResponseDTO;
+import br.imob.login.dto.*;
 import br.imob.login.model.Role;
 import br.imob.login.repository.RoleRepository;
 import br.imob.login.repository.UserRepository;
-import br.imob.login.dto.LoginRequestDTO;
-import br.imob.login.dto.LoginResponseDTO;
 import br.imob.login.model.Usuario;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -99,5 +97,26 @@ public class AuthService {
                 usuario.getUserId(), usuario.getNome(), usuario.getUsername(),
                 usuario.getEmail(), roleName
         );
+    }
+
+    @Transactional
+    public void trocarSenha(Long userId, TrocaSenhaDTO dto) {
+        Usuario usuario = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(dto.senhaAtual(), usuario.getPassword())) {
+            throw new BadCredentialsException("A senha atual está incorreta.");
+        }
+        usuario.setPassword(passwordEncoder.encode(dto.novaSenha()));
+        userRepository.save(usuario);
+    }
+
+    @Transactional
+    public void alterarStatusUsuario(Long userId, boolean ativo) {
+        Usuario usuario = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setAtivo(ativo);
+        userRepository.save(usuario);
     }
 }

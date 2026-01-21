@@ -1,6 +1,6 @@
 CREATE TABLE enderecos
 (
-    id         BIGSERIAL PRIMARY KEY,
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     cep        VARCHAR(9),
     logradouro VARCHAR(255),
     numero     VARCHAR(10),
@@ -11,7 +11,7 @@ CREATE TABLE enderecos
 
 CREATE TABLE imoveis
 (
-    id              BIGSERIAL PRIMARY KEY,
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     titulo          VARCHAR(255) NOT NULL,
     descricao       TEXT,
     tipo_imovel     VARCHAR(50),
@@ -22,12 +22,15 @@ CREATE TABLE imoveis
     quartos         INT,
     banheiros       INT,
     vagas_garagem   INT,
-    endereco_id     BIGINT REFERENCES enderecos (id)
+    endereco_id     BIGINT,
+    movel_active    BOOLEAN DEFAULT TRUE,
+    CONSTRAINT fk_imoveis_endereco FOREIGN KEY (endereco_id) REFERENCES enderecos (id)
 );
 
 CREATE TABLE fotos_imovel
 (
-    id          BIGSERIAL PRIMARY KEY,
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     url_arquivo VARCHAR(255) NOT NULL,
-    imovel_id   BIGINT REFERENCES imoveis (id) ON DELETE CASCADE
+    imovel_id   BIGINT,
+    CONSTRAINT fk_fotos_imovel FOREIGN KEY (imovel_id) REFERENCES imoveis (id) ON DELETE CASCADE
 );

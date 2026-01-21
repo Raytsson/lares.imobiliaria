@@ -57,4 +57,16 @@ public class ImovelController {
         ImovelDetailDto detalhe = imovelService.buscarPorId(id);
         return ResponseEntity.ok(detalhe);
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestParam boolean ativo) {
+        imovelService.alterarStatus(id, ativo);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        imovelService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
 }

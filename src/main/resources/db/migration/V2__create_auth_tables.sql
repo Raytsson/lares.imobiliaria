@@ -1,20 +1,20 @@
--- Criação das tabelas de Autenticação (Login)
+-- Criação das tabelas de Autenticação
 
 CREATE TABLE roles
 (
-    role_id BIGSERIAL PRIMARY KEY,
+    role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name    VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE usuarios
 (
-    user_id      BIGSERIAL PRIMARY KEY,
+    user_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome         VARCHAR(255) NOT NULL,
     username     VARCHAR(50)  NOT NULL UNIQUE,
     email        VARCHAR(255) NOT NULL UNIQUE,
     password     VARCHAR(255) NOT NULL,
     ativo        BOOLEAN DEFAULT TRUE,
-    ultimo_login TIMESTAMP
+    ultimo_login DATETIME
 );
 
 CREATE TABLE usuarios_roles
@@ -35,10 +35,12 @@ INSERT INTO roles (name)
 VALUES ('COLABORADOR');
 
 -- Usuário Admin Padrão
+-- ATENÇÃO: Se a senha não funcionar, use o endpoint de cadastro depois
 INSERT INTO usuarios (nome, username, email, password, ativo)
 VALUES ('Admin Master', 'admin', 'admin@imob.com.br', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOcd7QA8qkrPm',
-        true);
+        TRUE);
 
+-- Vincula o Admin à Role de ADMIN
 INSERT INTO usuarios_roles (user_id, role_id)
 SELECT u.user_id, r.role_id
 FROM usuarios u,

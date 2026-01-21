@@ -23,6 +23,6 @@ public record ImovelRequestDto (
         int quartos,
         int banheiros,
         int vagasGaragem,
-        EnderecosRequestDtos enderecos
-) {
-}
+        EnderecosRequestDtos enderecos,
+        boolean movelActive
+){}

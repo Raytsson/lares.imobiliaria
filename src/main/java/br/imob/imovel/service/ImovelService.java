@@ -117,4 +117,20 @@ public class ImovelService {
         );
     }
 
+    @Transactional
+    public void alterarStatus(Long id, boolean ativo) {
+        var imovel = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+
+        imovel.setMovelActive(ativo);
+        repository.save(imovel);
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Imóvel não encontrado para exclusão");
+        }
+        repository.deleteById(id);
+    }
 }
