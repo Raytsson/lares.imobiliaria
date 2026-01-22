@@ -5,6 +5,7 @@ import br.imob.enderecos.model.Enderecos;
 import br.imob.imovel.dtos.ImovelDetailDto;
 import br.imob.imovel.dtos.ImovelRequestDto;
 import br.imob.imovel.dtos.ImovelResponseDto;
+import br.imob.imovel.enums.Cidades;
 import br.imob.imovel.model.Imoveis;
 import br.imob.imovel.repository.ImovelRepository;
 import br.imob.imovel.repository.specs.ImovelSpecs;
@@ -47,8 +48,8 @@ public class ImovelService {
                 List.of());
     }
 
-    public Page<ImovelResponseDto> buscar(Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax , Pageable pageable) {
-        Specification<Imoveis> spec = ImovelSpecs.comFiltros(quartos, vagas, bairro, valorMin, valorMax);
+    public Page<ImovelResponseDto> buscar(Cidades cidades, Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax , Pageable pageable) {
+        Specification<Imoveis> spec = ImovelSpecs.comFiltros(cidades, quartos, vagas, bairro, valorMin, valorMax);
 
         return repository.findAll(spec, pageable).map(this::toResponseDto);
     }

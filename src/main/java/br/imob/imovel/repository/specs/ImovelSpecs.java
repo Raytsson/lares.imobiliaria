@@ -1,5 +1,6 @@
 package br.imob.imovel.repository.specs;
 
+import br.imob.imovel.enums.Cidades;
 import br.imob.imovel.model.Imoveis;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,10 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImovelSpecs {
-    public static Specification<Imoveis> comFiltros(Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax) {
+    public static Specification<Imoveis> comFiltros(Cidades cidades,Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            predicates.add(cb.isTrue(root.get("movelActive")));
+
+            if(cidades != null){predicates.add(cb.equal(root.get("cidade"), cidades));}
             if (quartos != null) predicates.add(cb.equal(root.get("quartos"), quartos));
             if (vagas != null) predicates.add(cb.equal(root.get("vagasGaragem"), vagas));
 

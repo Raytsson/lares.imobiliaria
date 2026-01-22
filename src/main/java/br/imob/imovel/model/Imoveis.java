@@ -2,6 +2,7 @@ package br.imob.imovel.model;
 
 import br.imob.enderecos.model.Enderecos;
 import br.imob.fotoImoveis.FotoImovel;
+import br.imob.imovel.enums.Cidades;
 import br.imob.imovel.enums.Status;
 import br.imob.imovel.enums.TipoImovel;
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ public class Imoveis {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String titulo;
+    private Cidades cidade;
     private String descricao;
     @Enumerated(EnumType.STRING)
     private TipoImovel tipoImovel;

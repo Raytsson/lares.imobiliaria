@@ -4,6 +4,7 @@ import br.imob.fotoImoveis.service.FotoService;
 import br.imob.imovel.dtos.ImovelDetailDto;
 import br.imob.imovel.dtos.ImovelRequestDto;
 import br.imob.imovel.dtos.ImovelResponseDto;
+import br.imob.imovel.enums.Cidades;
 import br.imob.imovel.service.ImovelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,13 +44,14 @@ public class ImovelController {
 
     @GetMapping
     public ResponseEntity<Page<ImovelResponseDto>> buscar(
+            @RequestParam(required = false) Cidades cidades,
             @RequestParam(required = false) Integer quartos,
             @RequestParam(required = false) Integer vagas,
             @RequestParam(required = false) String bairro,
             @RequestParam(required = false) BigDecimal valorMin,
             @RequestParam(required = false) BigDecimal valorMax,
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(imovelService.buscar(quartos, vagas, bairro, valorMin, valorMax, pageable));
+        return ResponseEntity.ok(imovelService.buscar(cidades, quartos, vagas, bairro, valorMin, valorMax, pageable));
     }
 
     @GetMapping("/{id}")
