@@ -1,15 +1,25 @@
 package br.imob.imovel.dtos;
 
+import br.imob.imovel.enums.Status;
+import br.imob.imovel.enums.TipoImovel;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+// DTO Principal (Sem o ID)
 public record ImovelResponseDto(
-        Long id,
         String titulo,
-        BigDecimal valor,
+        String descricao,
         String cidade,
-        String logradouro,
-        String bairro,
+        TipoImovel tipoImovel,
+        Status status,
+        BigDecimal valor,
+        BigDecimal areaTotal,
+        BigDecimal areaConstruida,
+        Integer quartos,
+        Integer banheiros,
+        Integer vagasGaragem,
+        EnderecoDto endereco,
         List<String> urlsFotos
-) {
-}
+) {}
+

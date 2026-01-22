@@ -2,6 +2,8 @@ package br.imob.imovel.service;
 
 import br.imob.enderecos.dtos.EnderecosResponseDto;
 import br.imob.enderecos.model.Enderecos;
+import br.imob.fotoImoveis.FotoImovel;
+import br.imob.imovel.dtos.EnderecoDto;
 import br.imob.imovel.dtos.ImovelDetailDto;
 import br.imob.imovel.dtos.ImovelRequestDto;
 import br.imob.imovel.dtos.ImovelResponseDto;
@@ -17,7 +19,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ImovelService {
@@ -38,14 +42,7 @@ public class ImovelService {
         Imoveis imovel = getImoveis(dto, enderecos);
         repository.save(imovel);
 
-        return new ImovelResponseDto(
-                imovel.getId(),
-                imovel.getTitulo(),
-                imovel.getValor(),
-                imovel.getEndereco().getCidade(),
-                imovel.getEndereco().getLogradouro(),
-                imovel.getEndereco().getBairro(),
-                List.of());
+        return toResponseDto(imovel);
     }
 
     public Page<ImovelResponseDto> buscar(Cidades cidades, Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax , Pageable pageable) {
@@ -71,14 +68,37 @@ public class ImovelService {
     }
 
     private ImovelResponseDto toResponseDto(Imoveis imovel) {
+        EnderecoDto enderecoDto = null;
+        if (imovel.getEndereco() != null) {
+            enderecoDto = new EnderecoDto(
+                    imovel.getEndereco().getLogradouro(),
+                    imovel.getEndereco().getNumero(),
+                    imovel.getEndereco().getBairro(),
+                    imovel.getEndereco().getCep()
+            );
+        }
+
+        List<String> listaFotos = new ArrayList<>();
+        if (imovel.getFotos() != null) {
+            listaFotos = imovel.getFotos().stream()
+                    .map(FotoImovel::getUrlArquivo)
+                    .collect(Collectors.toList());
+        }
+
         return new ImovelResponseDto(
-                imovel.getId(),
                 imovel.getTitulo(),
+                imovel.getDescricao(),
+                (imovel.getCidade() != null) ? imovel.getCidade().name() : null,
+                imovel.getTipoImovel(),
+                imovel.getStatus(),
                 imovel.getValor(),
-                imovel.getEndereco().getCidade(),
-                imovel.getEndereco().getLogradouro(),
-                imovel.getEndereco().getBairro(),
-                imovel.getFotos().stream().map(f -> f.getUrlArquivo()).toList()
+                imovel.getAreaTotal(),
+                imovel.getAreaConstruida(),
+                imovel.getQuartos(),
+                imovel.getBanheiros(),
+                imovel.getVagasGaragem(),
+                enderecoDto,
+                listaFotos
         );
     }
 
