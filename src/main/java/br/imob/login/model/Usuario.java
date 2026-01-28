@@ -41,13 +41,14 @@ public class Usuario {
     @NotNull
     private boolean ativo;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuarios_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
+
 
     @Column(name = "ultimo_login")
     private Instant ultimoLogin;

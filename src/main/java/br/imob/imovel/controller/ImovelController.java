@@ -6,12 +6,14 @@ import br.imob.imovel.dtos.ImovelRequestDto;
 import br.imob.imovel.dtos.ImovelResponseDto;
 import br.imob.imovel.enums.Cidades;
 import br.imob.imovel.service.ImovelService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,9 +30,12 @@ public class ImovelController {
     @Autowired
     private ImovelService imovelService;
 
-    @PostMapping("/criarImovel")
-    public ResponseEntity<ImovelResponseDto> criarImovel(@RequestBody ImovelRequestDto imovelRequestDto){
-        ImovelResponseDto response = imovelService.createImovel(imovelRequestDto);
+    @PostMapping(value = "/criarImovel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImovelResponseDto> criarImovel(
+            @Valid @RequestPart("imovel") ImovelRequestDto imovelRequestDto,
+            @RequestPart(value = "fotos", required = false) List<MultipartFile> fotos
+    ) {
+        ImovelResponseDto response = imovelService.createImovel(imovelRequestDto, fotos);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

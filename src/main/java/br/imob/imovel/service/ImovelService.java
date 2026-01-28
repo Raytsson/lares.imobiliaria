@@ -3,6 +3,7 @@ package br.imob.imovel.service;
 import br.imob.enderecos.dtos.EnderecosResponseDto;
 import br.imob.enderecos.model.Enderecos;
 import br.imob.fotoImoveis.FotoImovel;
+import br.imob.fotoImoveis.service.FotoService;
 import br.imob.imovel.dtos.EnderecoDto;
 import br.imob.imovel.dtos.ImovelDetailDto;
 import br.imob.imovel.dtos.ImovelRequestDto;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,8 +31,11 @@ public class ImovelService {
     @Autowired
     private ImovelRepository repository;
 
+    @Autowired
+    private FotoService fotoService;
+
     @Transactional
-    public ImovelResponseDto createImovel(ImovelRequestDto dto) {
+    public ImovelResponseDto createImovel(ImovelRequestDto dto, List<MultipartFile> fotos) {
         Enderecos enderecos = new Enderecos();
         enderecos.setCep(dto.enderecos().cep());
         enderecos.setLogradouro(dto.enderecos().logradouro());
@@ -40,10 +45,15 @@ public class ImovelService {
         enderecos.setEstado(dto.enderecos().estado());
 
         Imoveis imovel = getImoveis(dto, enderecos);
-        repository.save(imovel);
+        repository.save(imovel); // aqui o id já é gerado
+
+        if (fotos != null && !fotos.isEmpty()) {
+            fotoService.salvarFotos(imovel.getId(), fotos);
+        }
 
         return toResponseDto(imovel);
     }
+
 
     public Page<ImovelResponseDto> buscar(Cidades cidades, Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax , Pageable pageable) {
         Specification<Imoveis> spec = ImovelSpecs.comFiltros(cidades, quartos, vagas, bairro, valorMin, valorMax);
