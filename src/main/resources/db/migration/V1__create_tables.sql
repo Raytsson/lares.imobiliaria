@@ -14,7 +14,7 @@ CREATE TABLE imoveis
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     titulo          VARCHAR(255) NOT NULL,
     cidade          VARCHAR(100),
-    descricao       TEXT,
+    descricao       VARCHAR(500),
     tipo_imovel     VARCHAR(50),
     status          VARCHAR(50),
     valor           DECIMAL(12, 2),
