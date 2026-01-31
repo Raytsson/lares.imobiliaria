@@ -3,29 +3,42 @@ package br.imob.imovel.service;
 import br.imob.enderecos.dtos.EnderecosResponseDto;
 import br.imob.enderecos.model.Enderecos;
 import br.imob.fotoImoveis.FotoImovel;
+import br.imob.fotoImoveis.repository.FotoImovelRepository;
 import br.imob.fotoImoveis.service.FotoService;
-import br.imob.imovel.dtos.EnderecoDto;
-import br.imob.imovel.dtos.ImovelDetailDto;
-import br.imob.imovel.dtos.ImovelRequestDto;
-import br.imob.imovel.dtos.ImovelResponseDto;
+import br.imob.imovel.dtos.*;
 import br.imob.imovel.enums.Cidades;
+import br.imob.imovel.enums.Status;
+import br.imob.imovel.enums.TipoImovel;
 import br.imob.imovel.model.Imoveis;
 import br.imob.imovel.repository.ImovelRepository;
 import br.imob.imovel.repository.specs.ImovelSpecs;
+import br.imob.imovel.specification.ImovelSpecification;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ImovelService {
 
     @Autowired
@@ -33,6 +46,10 @@ public class ImovelService {
 
     @Autowired
     private FotoService fotoService;
+    @Autowired
+    private FotoImovelRepository fotoImovelRepository;
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     @Transactional
     public ImovelResponseDto createImovel(ImovelRequestDto dto, List<MultipartFile> fotos) {
@@ -53,7 +70,6 @@ public class ImovelService {
 
         return toResponseDto(imovel);
     }
-
 
     public Page<ImovelResponseDto> buscar(Cidades cidades, Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax , Pageable pageable) {
         Specification<Imoveis> spec = ImovelSpecs.comFiltros(cidades, quartos, vagas, bairro, valorMin, valorMax);
@@ -96,6 +112,7 @@ public class ImovelService {
         }
 
         return new ImovelResponseDto(
+                imovel.getId(),
                 imovel.getTitulo(),
                 imovel.getDescricao(),
                 (imovel.getCidade() != null) ? imovel.getCidade().name() : null,
@@ -159,9 +176,73 @@ public class ImovelService {
 
     @Transactional
     public void excluir(Long id) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Imóvel não encontrado para exclusão");
-        }
-        repository.deleteById(id);
+
+        Imoveis imovel = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+
+        // 🔥 Busca as fotos direto do banco
+        List<FotoImovel> fotos = fotoImovelRepository.findByImovelId(id);
+
+        // 🔥 Exclui o imóvel (e registros de foto via cascade/orphan)
+        repository.delete(imovel);
+
+        // 🔥 Registra ação para depois do COMMIT
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+
+                    @Override
+                    public void afterCommit() {
+                        log.info("✅ Commit confirmado, iniciando exclusão física");
+                        excluirFotosFisicas(fotos);
+                    }
+
+                }
+        );
     }
+
+    private void excluirFotosFisicas(List<FotoImovel> fotos) {
+        log.info("🧹 Excluindo {} arquivos físicos", fotos.size());
+
+        for (FotoImovel foto : fotos) {
+            Path path = Paths.get(uploadDir, foto.getUrlArquivo());
+            log.info("Apagando arquivo: {}", path.toAbsolutePath());
+
+            try {
+                Files.deleteIfExists(path);
+            } catch (IOException e) {
+                log.error("Erro ao deletar arquivo {}", path, e);
+            }
+        }
+    }
+
+    public Page<ImovelTabelaDto> listarParaTabela(
+            String nome,
+            TipoImovel tipoImovel,
+            Status status,
+            Cidades cidade,
+            Pageable pageable
+    ) {
+        Specification<Imoveis> spec = ImovelSpecification.tabela(
+                nome, tipoImovel, status, cidade
+        );
+
+        return repository.findAll(spec, pageable)
+                .map(ImovelTabelaDto::new);
+    }
+
+    public Map<String, Long> contarPorTipo() {
+        Map<String, Long> totais = new HashMap<>();
+        totais.put("CASA", repository.countByTipoImovel(TipoImovel.CASA));
+        totais.put("APARTAMENTO", repository.countByTipoImovel(TipoImovel.APARTAMENTO));
+        totais.put("TERRENO", repository.countByTipoImovel(TipoImovel.TERRENO));
+        totais.put("CHACARA", repository.countByTipoImovel(TipoImovel.CHACARA));
+        totais.put("BARRACAO", repository.countByTipoImovel(TipoImovel.BARRACAO));
+        totais.put("SITIO", repository.countByTipoImovel(TipoImovel.SITIO));
+        return totais;
+    }
+
+
+
+
+
 }

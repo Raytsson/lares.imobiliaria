@@ -4,7 +4,10 @@ import br.imob.fotoImoveis.service.FotoService;
 import br.imob.imovel.dtos.ImovelDetailDto;
 import br.imob.imovel.dtos.ImovelRequestDto;
 import br.imob.imovel.dtos.ImovelResponseDto;
+import br.imob.imovel.dtos.ImovelTabelaDto;
 import br.imob.imovel.enums.Cidades;
+import br.imob.imovel.enums.Status;
+import br.imob.imovel.enums.TipoImovel;
 import br.imob.imovel.service.ImovelService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/imoveis")
@@ -76,4 +80,32 @@ public class ImovelController {
         imovelService.excluir(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/tabela")
+    public ResponseEntity<Page<ImovelTabelaDto>> listarParaTabela(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) TipoImovel tipoImovel,
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) Cidades cidade,
+            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                imovelService.listarParaTabela(
+                        nome,
+                        tipoImovel,
+                        status,
+                        cidade,
+                        pageable
+                )
+        );
+    }
+
+    @GetMapping("/totais")
+    public ResponseEntity<Map<String, Long>> totaisPorTipo() {
+        Map<String, Long> totais = imovelService.contarPorTipo();
+        return ResponseEntity.ok(totais);
+    }
+
+
 }

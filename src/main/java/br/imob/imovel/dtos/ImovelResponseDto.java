@@ -8,6 +8,7 @@ import java.util.List;
 
 // DTO Principal (Sem o ID)
 public record ImovelResponseDto(
+        Long id,
         String titulo,
         String descricao,
         String cidade,
