@@ -23,4 +23,5 @@ public class Enderecos {
     private String bairro;
     private String cidade;
     private String estado;
+
 }

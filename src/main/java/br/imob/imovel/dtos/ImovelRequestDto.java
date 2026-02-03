@@ -1,6 +1,7 @@
 package br.imob.imovel.dtos;
 
 import br.imob.enderecos.dtos.EnderecosRequestDtos;
+import br.imob.imovel.enums.Cidades;
 import br.imob.imovel.enums.Status;
 import br.imob.imovel.enums.TipoImovel;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +24,7 @@ public record ImovelRequestDto (
         int quartos,
         int banheiros,
         int vagasGaragem,
+        Cidades cidade,
         EnderecosRequestDtos enderecos,
         boolean movelActive
 ){}

@@ -53,15 +53,21 @@ public class ImovelController {
 
     @GetMapping
     public ResponseEntity<Page<ImovelResponseDto>> buscar(
+            @RequestParam(required = false) TipoImovel tipoImovel,
+            @RequestParam(required = false) Status status,
             @RequestParam(required = false) Cidades cidades,
             @RequestParam(required = false) Integer quartos,
             @RequestParam(required = false) Integer vagas,
             @RequestParam(required = false) String bairro,
             @RequestParam(required = false) BigDecimal valorMin,
             @RequestParam(required = false) BigDecimal valorMax,
-            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(imovelService.buscar(cidades, quartos, vagas, bairro, valorMin, valorMax, pageable));
+            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                imovelService.buscar(tipoImovel, status, cidades, quartos, vagas, bairro, valorMin, valorMax, pageable)
+        );
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ImovelDetailDto> buscarPorId(@PathVariable Long id) {

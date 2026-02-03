@@ -26,6 +26,8 @@ public class Imoveis {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String titulo;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cidade", nullable = false, length = 50)
     private Cidades cidade;
     private String descricao;
     @Enumerated(EnumType.STRING)

@@ -13,6 +13,9 @@ import br.imob.imovel.model.Imoveis;
 import br.imob.imovel.repository.ImovelRepository;
 import br.imob.imovel.repository.specs.ImovelSpecs;
 import br.imob.imovel.specification.ImovelSpecification;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +65,9 @@ public class ImovelService {
         enderecos.setEstado(dto.enderecos().estado());
 
         Imoveis imovel = getImoveis(dto, enderecos);
+        imovel.setCidade(
+                Cidades.valueOf(enderecos.getCidade().toUpperCase())
+        );
         repository.save(imovel); // aqui o id já é gerado
 
         if (fotos != null && !fotos.isEmpty()) {
@@ -71,8 +77,49 @@ public class ImovelService {
         return toResponseDto(imovel);
     }
 
-    public Page<ImovelResponseDto> buscar(Cidades cidades, Integer quartos, Integer vagas, String bairro, BigDecimal valorMin, BigDecimal valorMax , Pageable pageable) {
-        Specification<Imoveis> spec = ImovelSpecs.comFiltros(cidades, quartos, vagas, bairro, valorMin, valorMax);
+    public Page<ImovelResponseDto> buscar(
+            TipoImovel tipoImovel,
+            Status status,
+            Cidades cidades,
+            Integer quartos,
+            Integer vagas,
+            String bairro,
+            BigDecimal valorMin,
+            BigDecimal valorMax,
+            Pageable pageable
+    ) {
+        Specification<Imoveis> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (tipoImovel != null) {
+                predicates.add(cb.equal(root.get("tipoImovel"), tipoImovel));
+            }
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (cidades != null) {
+                predicates.add(cb.equal(root.get("cidade"), cidades)); // se o campo na entity for "cidade"
+            }
+            if (quartos != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("quartos"), quartos)); // mínimo de quartos
+            }
+            if (vagas != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("vagasGaragem"), vagas)); // ajuste o nome do campo
+            }
+            if (bairro != null && !bairro.isBlank()) {
+                // se bairro fica em Enderecos
+                Join<Object, Object> end = root.join("enderecos", JoinType.INNER);
+                predicates.add(cb.like(cb.lower(end.get("bairro")), "%" + bairro.toLowerCase() + "%"));
+            }
+            if (valorMin != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("valor"), valorMin));
+            }
+            if (valorMax != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("valor"), valorMax));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
 
         return repository.findAll(spec, pageable).map(this::toResponseDto);
     }
