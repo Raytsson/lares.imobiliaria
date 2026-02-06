@@ -132,13 +132,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200",
+
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:4200",
                 "http://localhost:3000",
-                "https://site-barrios.vps7358.panel.icontainer.net"
+                "https://barriosimobiliaria.com.br",
+                "https://www.barriosimobiliaria.com.br",
+                "https://*.barriosimobiliaria.com.br"
         ));
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
