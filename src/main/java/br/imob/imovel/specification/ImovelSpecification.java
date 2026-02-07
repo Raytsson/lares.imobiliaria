@@ -17,7 +17,8 @@ public class ImovelSpecification {
             String nome,
             TipoImovel tipoImovel,
             Status status,
-            Cidades cidade
+            Cidades cidade,
+            Boolean isComercial // ✅ novo
     ) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -43,9 +44,15 @@ public class ImovelSpecification {
                 predicates.add(cb.equal(root.get("cidade"), cidade));
             }
 
+            // ✅ filtro comercial
+            if (isComercial != null) {
+                predicates.add(cb.equal(root.get("comercial"), isComercial));
+            }
+
             predicates.add(cb.isTrue(root.get("movelActive")));
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
+

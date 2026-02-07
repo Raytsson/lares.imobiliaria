@@ -86,6 +86,7 @@ public class ImovelService {
             String bairro,
             BigDecimal valorMin,
             BigDecimal valorMax,
+            Boolean isComercial,
             Pageable pageable
     ) {
         Specification<Imoveis> spec = (root, query, cb) -> {
@@ -118,6 +119,11 @@ public class ImovelService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("valor"), valorMax));
             }
 
+            if (isComercial != null) {
+                predicates.add(cb.equal(root.get("comercial"), isComercial));
+            }
+
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -134,9 +140,12 @@ public class ImovelService {
         imovel.setAreaTotal(dto.areaTotal());
         imovel.setAreaConstruida(dto.areaConstruida());
         imovel.setQuartos(dto.quartos());
+        imovel.setSuites(dto.suites());
         imovel.setBanheiros(dto.banheiros());
         imovel.setVagasGaragem(dto.vagasGaragem());
         imovel.setEndereco(enderecos);
+
+        imovel.setComercial(dto.isComercial());
         return imovel;
     }
 
@@ -169,10 +178,12 @@ public class ImovelService {
                 imovel.getAreaTotal(),
                 imovel.getAreaConstruida(),
                 imovel.getQuartos(),
+                imovel.getSuites(),
                 imovel.getBanheiros(),
                 imovel.getVagasGaragem(),
                 enderecoDto,
-                listaFotos
+                listaFotos,
+                imovel.isComercial()
         );
     }
 
@@ -270,7 +281,7 @@ public class ImovelService {
             Pageable pageable
     ) {
         Specification<Imoveis> spec = ImovelSpecification.tabela(
-                nome, tipoImovel, status, cidade
+                nome, tipoImovel, status, cidade, null
         );
 
         return repository.findAll(spec, pageable)
@@ -285,6 +296,7 @@ public class ImovelService {
         totais.put("CHACARA", repository.countByTipoImovel(TipoImovel.CHACARA));
         totais.put("BARRACAO", repository.countByTipoImovel(TipoImovel.BARRACAO));
         totais.put("SITIO", repository.countByTipoImovel(TipoImovel.SITIO));
+        totais.put("SOBRADO", repository.countByTipoImovel(TipoImovel.SOBRADO));
         return totais;
     }
 

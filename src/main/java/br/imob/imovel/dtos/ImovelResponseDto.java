@@ -18,9 +18,11 @@ public record ImovelResponseDto(
         BigDecimal areaTotal,
         BigDecimal areaConstruida,
         Integer quartos,
+        Integer suites,
         Integer banheiros,
         Integer vagasGaragem,
         EnderecoDto endereco,
-        List<String> urlsFotos
+        List<String> urlsFotos,
+        boolean isComercial
 ) {}
 

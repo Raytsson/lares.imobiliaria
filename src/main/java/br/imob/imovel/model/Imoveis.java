@@ -38,6 +38,7 @@ public class Imoveis {
     private BigDecimal areaTotal;
     private BigDecimal areaConstruida;
     private int quartos;
+    private int suites;
     private int banheiros;
     private int vagasGaragem;
     @OneToOne(cascade = CascadeType.ALL)
@@ -46,4 +47,7 @@ public class Imoveis {
     private boolean movelActive = true;
     @OneToMany(mappedBy = "imovel", cascade = CascadeType.ALL)
     private List<FotoImovel> fotos;
+    @Column(name = "is_comercial", nullable = false)
+    private boolean comercial = false;
+
 }

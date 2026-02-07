@@ -61,10 +61,11 @@ public class ImovelController {
             @RequestParam(required = false) String bairro,
             @RequestParam(required = false) BigDecimal valorMin,
             @RequestParam(required = false) BigDecimal valorMax,
+            @RequestParam(required = false) Boolean isComercial,
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(
-                imovelService.buscar(tipoImovel, status, cidades, quartos, vagas, bairro, valorMin, valorMax, pageable)
+                imovelService.buscar(tipoImovel, status, cidades, quartos, vagas, bairro, valorMin, valorMax, isComercial, pageable)
         );
     }
 

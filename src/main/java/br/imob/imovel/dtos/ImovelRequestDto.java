@@ -22,9 +22,11 @@ public record ImovelRequestDto (
         BigDecimal areaTotal,
         BigDecimal areaConstruida,
         int quartos,
+        int suites,
         int banheiros,
         int vagasGaragem,
         Cidades cidade,
         EnderecosRequestDtos enderecos,
-        boolean movelActive
+        boolean movelActive,
+        boolean isComercial
 ){}
