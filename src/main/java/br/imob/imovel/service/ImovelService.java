@@ -187,10 +187,10 @@ public class ImovelService {
         );
     }
 
-    public ImovelDetailDto buscarPorId(Long id) {
+    public ImovelResponseDto buscarPorId(Long id) {
         Imoveis imovel = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
-        return toDetailDto(imovel);
+        return toResponseDto(imovel);
     }
 
     private ImovelDetailDto toDetailDto(Imoveis imovel) {

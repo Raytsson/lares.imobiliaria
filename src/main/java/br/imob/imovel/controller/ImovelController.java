@@ -71,9 +71,9 @@ public class ImovelController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<ImovelDetailDto> buscarPorId(@PathVariable Long id) {
-        ImovelDetailDto detalhe = imovelService.buscarPorId(id);
-        return ResponseEntity.ok(detalhe);
+    public ResponseEntity<ImovelResponseDto> buscarPorId(@PathVariable Long id) {
+        ImovelResponseDto imovel = imovelService.buscarPorId(id);
+        return ResponseEntity.ok(imovel);
     }
 
     @PatchMapping("/{id}/status")
