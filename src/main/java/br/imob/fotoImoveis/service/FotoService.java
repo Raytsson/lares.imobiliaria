@@ -51,7 +51,7 @@ public class FotoService {
     private String salvarArquivoNoDisco(MultipartFile arquivo) {
         try {
             // nome base sempre .webp
-            String nomeBase = UUID.randomUUID() + ".webp";
+            String nomeBase = UUID.randomUUID() + ".jpg"; // ← muda para .jpg
             Path dir = Paths.get(uploadDir);
             Files.createDirectories(dir);
 
@@ -62,7 +62,7 @@ public class FotoService {
             Thumbnails.of(new ByteArrayInputStream(bytes))
                     .size(1600, 1600)
                     .keepAspectRatio(true)
-                    .outputFormat("webp")
+                    .outputFormat("jpg")
                     .outputQuality(0.80)
                     .toFile(dir.resolve(nomeBase).toFile());
 
@@ -70,7 +70,7 @@ public class FotoService {
             Thumbnails.of(new ByteArrayInputStream(bytes))
                     .size(900, 900)
                     .keepAspectRatio(true)
-                    .outputFormat("webp")
+                    .outputFormat("jpg")
                     .outputQuality(0.75)
                     .toFile(dir.resolve("medium_" + nomeBase).toFile());
 
@@ -78,7 +78,7 @@ public class FotoService {
             Thumbnails.of(new ByteArrayInputStream(bytes))
                     .size(400, 400)
                     .keepAspectRatio(true)
-                    .outputFormat("webp")
+                    .outputFormat("jpg")
                     .outputQuality(0.70)
                     .toFile(dir.resolve("thumb_" + nomeBase).toFile());
 
